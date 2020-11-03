@@ -16,24 +16,16 @@ interface Balance {
 class CreateTransactionService {
   private transactionsRepository: TransactionsRepository;
 
-  private balance: Balance;
-
   constructor(transactionsRepository: TransactionsRepository) {
     this.transactionsRepository = transactionsRepository;
-    this.balance = transactionsRepository.getBalance();
   }
 
   public execute({ title, value, type }: Request): Transaction {
     if (type === 'outcome') {
-      if (value > this.balance.total) {
+      if (value > this.transactionsRepository.getBalance().total) {
         throw Error('Insufficiente balance');
       }
-      this.balance.outcome += value;
-    } else {
-      this.balance.income += value;
     }
-
-    this.balance.total = this.balance.income - this.balance.outcome;
 
     const transaction = this.transactionsRepository.create({
       title,
